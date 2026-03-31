@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Visiting Nepal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; overflow-x: hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #FAF3E8;
+  color: #1A0A0A;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── SCREEN SYSTEM ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30px);
+  transition: opacity 0.32s ease, transform 0.32s ease;
+  -webkit-overflow-scrolling: touch;
+  background: #FAF3E8;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(0);
+  z-index: 10;
+}
+.screen.slide-out {
+  opacity: 0;
+  transform: translateX(-30px);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ═══════════════════════════
+   SCREEN 1 — REGISTER
+═══════════════════════════ */
+#s-register {
+  background: #1A0A0A;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px 20px;
+}
+.reg-glow {
+  position: fixed; top: -80px; left: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(192,57,43,0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+.reg-glow2 {
+  position: fixed; bottom: -60px; right: -60px;
+  width: 250px; height: 250px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(212,160,23,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+.reg-box {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 400px;
+  background: rgba(255,248,240,0.05);
+  border: 1px solid rgba(212,160,23,0.3);
+  border-radius: 16px;
+  padding: clamp(28px,6vw,48px) clamp(20px,6vw,40px);
+  backdrop-filter: blur(12px);
+}
+.flag-bar { display:flex; gap:5px; align-items:center; margin-bottom:28px; }
+.fb { height:4px; border-radius:2px; }
+.fb-b { width:36px; background:#003893; }
+.fb-r { width:56px; background:#DC143C; }
+.reg-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(32px,8vw,44px); font-weight:900;
+  color:#FAF3E8; line-height:1.1; letter-spacing:-1px; margin-bottom:6px;
+}
+.reg-sub { font-size:13px; color:#D4A017; margin-bottom:32px; font-style:italic; }
+.field-label {
+  display:block; font-size:10px; font-weight:700;
+  letter-spacing:1.8px; text-transform:uppercase;
+  color:#8A7060; margin-bottom:8px;
+}
+.field-wrap { margin-bottom:20px; }
+.text-input {
+  width:100%;
+  background:rgba(255,248,240,0.07);
+  border:1.5px solid rgba(212,160,23,0.35);
+  border-radius:10px; padding:14px 16px;
+  font-family:'DM Sans',sans-serif; font-size:15px; color:#FAF3E8;
+  outline:none; transition:border-color 0.2s; -webkit-appearance:none;
+}
+.text-input::placeholder { color:rgba(250,243,232,0.3); }
+.text-input:focus { border-color:#D4A017; }
+.phone-wrap {
+  display:flex;
+  border:1.5px solid rgba(212,160,23,0.35);
+  border-radius:10px; overflow:hidden;
+  background:rgba(255,248,240,0.07);
+  transition:border-color 0.2s; margin-bottom:6px;
+}
+.phone-wrap:focus-within { border-color:#D4A017; }
+.phone-pfx {
+  display:flex; align-items:center; gap:6px;
+  padding:0 14px;
+  background:rgba(212,160,23,0.12);
+  border-right:1px solid rgba(212,160,23,0.3);
+  font-size:13px; font-weight:700; color:#D4A017;
+  white-space:nowrap; flex-shrink:0;
+}
+.phone-input {
+  flex:1; min-width:0; background:transparent;
+  border:none; outline:none; padding:14px 14px;
+  font-family:'DM Sans',sans-serif; font-size:16px; color:#FAF3E8;
+  -webkit-appearance:none;
+}
+.phone-input::placeholder { color:rgba(250,243,232,0.3); }
+.err { font-size:12px; color:#e74c3c; min-height:18px; margin-bottom:16px; display:none; }
+.err.show { display:block; }
+.btn-reg {
+  width:100%; padding:16px;
+  background:#C0392B; color:#FAF3E8;
+  border:none; border-radius:10px;
+  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background 0.2s,transform 0.15s,box-shadow 0.2s;
+  -webkit-appearance:none;
+}
+.btn-reg:active { transform:scale(0.98); }
+.btn-reg:hover { background:#a93226; box-shadow:0 6px 20px rgba(192,57,43,0.4); }
+
+/* ═══════════════════════════
+   SHARED HEADER
+═══════════════════════════ */
+.app-header {
+  position:sticky; top:0; z-index:50;
+  background:#1A0A0A; height:56px;
+  display:flex; align-items:center;
+  padding:0 16px; gap:12px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.3);
+}
+.btn-back {
+  background:none; border:none; color:#D4A017;
+  cursor:pointer; font-size:22px; padding:6px;
+  display:flex; align-items:center; line-height:1; flex-shrink:0;
+}
+.hdr-title {
+  font-family:'Playfair Display',serif; font-size:18px; font-weight:700;
+  color:#FAF3E8; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.avatar {
+  width:32px; height:32px; border-radius:50%; background:#C0392B;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:#FAF3E8; flex-shrink:0;
+}
+
+/* ═══════════════════════════
+   HERO BAND (cities + cats)
+═══════════════════════════ */
+.hero-band {
+  background:linear-gradient(160deg,#1A0A0A 0%,#2D0F0F 100%);
+  padding:clamp(24px,5vw,40px) clamp(16px,4vw,28px) clamp(36px,7vw,56px);
+  position:relative; overflow:hidden;
+}
+.hero-glow {
+  position:absolute; top:-40px; right:-40px;
+  width:220px; height:220px; border-radius:50%;
+  background:radial-gradient(circle,rgba(192,57,43,0.3) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-tag { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#D4A017; margin-bottom:8px; }
+.hero-h1 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,7vw,42px); font-weight:900; color:#FAF3E8;
+  line-height:1.1; margin-bottom:6px; letter-spacing:-0.5px;
+}
+.hero-p { font-size:13px; color:rgba(250,243,232,0.5); font-style:italic; }
+.sec-lbl {
+  font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  color:#8A7060; padding:20px 16px 10px;
+}
+
+/* ═══════════════════════════
+   SCREEN 2 — CITIES
+═══════════════════════════ */
+.cities-grid {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:10px; padding:0 12px 32px;
+}
+@media(min-width:480px){ .cities-grid{ gap:14px; padding:0 16px 40px; } }
+@media(min-width:700px){ .cities-grid{ grid-template-columns:repeat(4,1fr); } }
+
+.city-card {
+  background:#FFF8F0; border:1px solid rgba(192,57,43,0.15);
+  border-radius:12px; padding:18px 14px;
+  cursor:pointer; user-select:none; -webkit-user-select:none;
+  transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;
+}
+.city-card:active { transform:scale(0.97); }
+.city-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(26,10,10,0.12); border-color:#C0392B; }
+.city-emoji { font-size:26px; margin-bottom:10px; }
+.city-num { font-size:10px; font-weight:700; color:#C0392B; letter-spacing:1px; margin-bottom:4px; }
+.city-name { font-family:'Playfair Display',serif; font-size:clamp(15px,3.5vw,18px); font-weight:700; color:#1A0A0A; line-height:1.2; margin-bottom:3px; }
+.city-tag { font-size:10px; color:#8A7060; }
+
+/* ═══════════════════════════
+   SCREEN 3 — CATEGORIES
+═══════════════════════════ */
+.cats-list {
+  padding:10px 12px 40px;
+  display:flex; flex-direction:column; gap:10px;
+}
+@media(min-width:600px){ .cats-list{ padding:10px 20px 40px; } }
+
+.cat-row {
+  display:flex; align-items:center; gap:14px;
+  background:#FFF8F0; border:1px solid rgba(192,57,43,0.15);
+  border-radius:12px; padding:16px 14px;
+  cursor:pointer; user-select:none;
+  transition:transform 0.18s,border-color 0.18s,box-shadow 0.18s;
+}
+.cat-row:active { transform:scale(0.98); }
+.cat-row:hover { transform:translateX(4px); box-shadow:0 4px 20px rgba(26,10,10,0.1); border-color:rgba(192,57,43,0.35); }
+.cat-icon { width:50px; height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.cat-info { flex:1; min-width:0; }
+.cat-name { font-family:'Playfair Display',serif; font-size:clamp(15px,3.5vw,17px); font-weight:700; color:#1A0A0A; margin-bottom:3px; }
+.cat-count { font-size:12px; color:#8A7060; }
+.cat-arr { font-size:20px; color:#C0B09A; flex-shrink:0; }
+
+/* ═══════════════════════════
+   SCREEN 4 — PLACES
+═══════════════════════════ */
+.places-hero {
+  background:#1A0A0A;
+  padding:clamp(20px,5vw,36px) clamp(16px,4vw,28px) clamp(28px,6vw,44px);
+  position:relative; overflow:hidden;
+}
+.ph-badge { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.ph-icon { font-size:26px; }
+.ph-lbl { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#E8722A; }
+.ph-title { font-family:'Playfair Display',serif; font-size:clamp(22px,6vw,36px); font-weight:900; color:#FAF3E8; line-height:1.15; margin-bottom:4px; }
+.ph-city { font-size:12px; color:rgba(250,243,232,0.45); }
+
+.places-wrap {
+  padding:14px 12px 56px;
+  display:flex; flex-direction:column; gap:14px;
+}
+@media(min-width:600px){ .places-wrap{ padding:16px 20px 56px; } }
+@media(min-width:900px){ .places-wrap{ display:grid; grid-template-columns:repeat(2,1fr); } }
+
+.place-card {
+  background:#FFF8F0; border:1px solid rgba(192,57,43,0.15);
+  border-radius:14px; overflow:hidden;
+  transition:box-shadow 0.2s;
+  cursor: pointer;
+}
+.place-card:hover { box-shadow:0 8px 32px rgba(26,10,10,0.13); }
+.place-thumb {
+  height:130px; display:flex; align-items:center; justify-content:center;
+  font-size:52px; position:relative;
+}
+.place-thumb-lbl {
+  position:absolute; bottom:8px; right:10px;
+  background:rgba(26,10,10,0.65); color:rgba(250,243,232,0.8);
+  font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  padding:3px 8px; border-radius:3px;
+}
+.place-body { padding:16px; }
+.place-seq { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#C0392B; margin-bottom:4px; }
+.place-name { font-family:'Playfair Display',serif; font-size:clamp(17px,4vw,21px); font-weight:700; color:#1A0A0A; line-height:1.2; margin-bottom:8px; }
+.place-desc { font-size:13px; color:#8A7060; line-height:1.65; margin-bottom:14px; }
+.place-loc {
+  display:flex; gap:8px; align-items:flex-start;
+  background:rgba(192,57,43,0.06); border:1px solid rgba(192,57,43,0.13);
+  border-radius:8px; padding:11px 12px; margin-bottom:12px;
+}
+.loc-pin { font-size:14px; flex-shrink:0; margin-top:1px; }
+.loc-body { font-size:12px; color:#1A0A0A; line-height:1.55; }
+.loc-lbl { display:block; font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#C0392B; margin-bottom:2px; }
+.place-tags { display:flex; flex-wrap:wrap; gap:5px; }
+.ptag {
+  font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+  padding:3px 9px; border-radius:4px;
+  background:rgba(212,160,23,0.1); color:#B8860B;
+  border:1px solid rgba(212,160,23,0.25);
+}
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(192,57,43,0.3); border-radius:4px; }
+</style>
+</head>
+<body>
+
+<div id="s-register" class="screen active">
+  <div class="reg-glow"></div>
+  <div class="reg-glow2"></div>
+  <div class="reg-box">
+    <div class="flag-bar"><div class="fb fb-b"></div><div class="fb fb-r"></div></div>
+    <div class="reg-title">Visiting<br>Nepal</div>
+    <div class="reg-sub">✦ Discover the Roof of the World</div>
+    <div class="field-wrap">
+      <label class="field-label">Your Name</label>
+      <input id="inp-name" class="text-input" type="text" placeholder="Enter your full name" autocomplete="name"/>
+    </div>
+    <div class="field-wrap">
+      <label class="field-label">Mobile Number</label>
+      <div class="phone-wrap">
+        <div class="phone-pfx">🇳🇵 +977</div>
+        <input id="inp-phone" class="phone-input" type="tel" inputmode="numeric" placeholder="98XXXXXXXX" maxlength="10"/>
+      </div>
+    </div>
+    <div class="err" id="err-msg"></div>
+    <button class="btn-reg" id="btn-reg">Begin Your Journey →</button>
+  </div>
+</div>
+
+<div id="s-cities" class="screen">
+  <div class="app-header">
+    <div class="hdr-title">🇳🇵 Visiting Nepal</div>
+    <div class="avatar" id="av-cities">?</div>
+  </div>
+  <div class="hero-band">
+    <div class="hero-glow"></div>
+    <div class="hero-tag" id="greet-tag">Welcome</div>
+    <div class="hero-h1">Choose<br>Your City</div>
+    <div class="hero-p">Where does your adventure begin?</div>
+  </div>
+  <div class="sec-lbl">8 Cities to Explore</div>
+  <div class="cities-grid" id="cities-grid"></div>
+</div>
+
+<div id="s-cats" class="screen">
+  <div class="app-header">
+    <button class="btn-back" id="back-cats">&#8592;</button>
+    <div class="hdr-title" id="cats-hdr">Explore</div>
+  </div>
+  <div class="hero-band">
+    <div class="hero-glow"></div>
+    <div class="hero-tag">📍 Nepal</div>
+    <div class="hero-h1" id="cats-city-name">City</div>
+    <div class="hero-p" id="cats-city-desc">Loading...</div>
+  </div>
+  <div class="sec-lbl">Explore by Category</div>
+  <div class="cats-list" id="cats-list"></div>
+</div>
+
+<div id="s-places" class="screen">
+  <div class="app-header">
+    <button class="btn-back" id="back-places">&#8592;</button>
+    <div class="hdr-title" id="places-hdr">Places</div>
+  </div>
+  <div class="places-hero">
+    <div class="ph-badge">
+      <span class="ph-icon" id="ph-icon">🏛️</span>
+      <span class="ph-lbl" id="ph-lbl">Category</span>
+    </div>
+    <div class="ph-title" id="ph-title">Places</div>
+    <div class="ph-city" id="ph-city">Nepal</div>
+  </div>
+  <div class="places-wrap" id="places-wrap"></div>
+</div>
+
+<script>
+/* ════ DATA ════ */
+const CITIES=[
+  {id:"ktm",name:"Kathmandu", num:"01",tag:"The Ancient Capital",  emoji:"🏛️",desc:"Nepal's bustling capital — where ancient temples meet modern life."},
+  {id:"pkr",name:"Pokhara",   num:"02",tag:"City of Lakes",        emoji:"🏔️",desc:"Gateway to the Annapurna range with stunning lakeside serenity."},
+  {id:"jan",name:"Janakpur",  num:"03",tag:"Birthplace of Sita",   emoji:"🛕",desc:"A sacred pilgrimage city steeped in mythological heritage."},
+  {id:"brt",name:"Biratnagar",num:"04",tag:"Industrial Hub",       emoji:"🏭",desc:"Nepal's second largest city and eastern commercial centre."},
+  {id:"lum",name:"Lumbini",   num:"05",tag:"Birthplace of Buddha", emoji:"☸️",desc:"A UNESCO World Heritage Site and sacred Buddhist pilgrimage site."},
+  {id:"llt",name:"Lalitpur",  num:"06",tag:"City of Fine Arts",    emoji:"🎨",desc:"Patan's rich artistic legacy shines through its historic courtyards."},
+  {id:"bkp",name:"Bhaktapur", num:"07",tag:"City of Devotees",     emoji:"🏯",desc:"A preserved medieval city, unchanged through the centuries."},
+  {id:"bgj",name:"Birgunj",   num:"08",tag:"Gateway City",         emoji:"🚂",desc:"Nepal's busiest border town and trade gateway to India."},
+];
+const CATS=[
+  {id:"temples",   name:"Temples",          icon:"🛕",col:"#C0392B",bg:"rgba(192,57,43,0.12)"},
+  {id:"mountains", name:"Mountains & Lakes",icon:"🏔️",col:"#2980B9",bg:"rgba(41,128,185,0.12)"},
+  {id:"markets",   name:"Markets",          icon:"🛍️",col:"#27AE60",bg:"rgba(39,174,96,0.12)"},
+  {id:"museums",   name:"Museums",          icon:"🏛️",col:"#8E44AD",bg:"rgba(142,68,173,0.12)"},
+  {id:"government",name:"Government Places",icon:"🏛", col:"#D4A017",bg:"rgba(212,160,23,0.12)"},
+  {id:"others",    name:"Others",           icon:"✨",col:"#16A085",bg:"rgba(22,160,133,0.12)"},
+];
+const PLACES={
+  ktm:{
+    temples:[
+      {name:"Pashupatinath Temple",emoji:"🛕",desc:"One of the holiest Hindu shrines in the world.",loc:"Gaushala, Kathmandu",tags:["UNESCO","Hindu"],mapUrl:"http://googleusercontent.com/maps.google.com/7"},
+      {name:"Swayambhunath",emoji:"🐒",desc:"Ancient stupa atop a hill.",loc:"Swayambhu, Kathmandu",tags:["Buddhist","UNESCO"],mapUrl:"http://googleusercontent.com/maps.google.com/8"},
+    ],
+    // Baaki thau haru ma pani yesari mapUrl halne...
+  },
+  pkr:{
+    temples:[
+      {name:"Barahi Temple",emoji:"⛵",desc:"Island temple in Phewa Lake.",loc:"Phewa Lake, Pokhara",tags:["Island","Boat"],mapUrl:"http://googleusercontent.com/maps.google.com/9"},
+    ],
+  }
+};
+
+/* ════ STATE ════ */
+let USER=null, CITY=null, CAT=null;
+
+/* ════ SCREEN NAV ════ */
+function showScreen(id){
+  const cur=document.querySelector('.screen.active');
+  const nxt=document.getElementById(id);
+  if(cur===nxt) return;
+  if(cur){ cur.classList.add('slide-out'); setTimeout(()=>cur.classList.remove('active','slide-out'),340); }
+  nxt.classList.add('active');
+  nxt.scrollTop=0;
+}
+
+/* ════ REGISTER ════ */
+document.getElementById('btn-reg').addEventListener('click',function(){
+  const name=document.getElementById('inp-name').value.trim();
+  const phone=document.getElementById('inp-phone').value.trim();
+  const err=document.getElementById('err-msg');
+  if(!name){ err.textContent='Please enter your name.'; err.classList.add('show'); return; }
+  if(!/^\d{10}$/.test(phone)){ err.textContent='Please enter a valid 10-digit mobile number.'; err.classList.add('show'); return; }
+  err.classList.remove('show');
+  USER={name,phone};
+  buildCities();
+  showScreen('s-cities');
+});
+
+/* ════ CITIES ════ */
+function buildCities(){
+  const first=USER.name.split(' ')[0];
+  document.getElementById('greet-tag').textContent='Welcome, '+first+' 👋';
+  document.getElementById('av-cities').textContent=first[0].toUpperCase();
+  document.getElementById('cities-grid').innerHTML=CITIES.map(c=>`
+    <div class="city-card" onclick="pickCity('${c.id}')">
+      <div class="city-emoji">${c.emoji}</div>
+      <div class="city-num">${c.num}</div>
+      <div class="city-name">${c.name}</div>
+      <div class="city-tag">${c.tag}</div>
+    </div>`).join('');
+}
+function pickCity(id){
+  CITY=CITIES.find(c=>c.id===id);
+  buildCats();
+  showScreen('s-cats');
+}
+
+/* ════ CATEGORIES ════ */
+function buildCats(){
+  document.getElementById('cats-hdr').textContent=CITY.name;
+  document.getElementById('cats-city-name').textContent=CITY.name;
+  document.getElementById('cats-city-desc').textContent=CITY.desc;
+  const places=PLACES[CITY.id]||{};
+  document.getElementById('cats-list').innerHTML=CATS.map(c=>{
+    const n=(places[c.id]||[]).length;
+    return `<div class="cat-row" onclick="pickCat('${c.id}')">
+      <div class="cat-icon" style="background:${c.bg}">${c.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">${n} place${n!==1?'s':''}</div>
+      </div>
+      <div class="cat-arr">›</div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('back-cats').addEventListener('click',()=>showScreen('s-cities'));
+
+/* ════ PLACES ════ */
+function pickCat(id){
+  CAT=CATS.find(c=>c.id===id);
+  buildPlaces();
+  showScreen('s-places');
+}
+function buildPlaces(){
+  const places=(PLACES[CITY.id]||{})[CAT.id]||[];
+  document.getElementById('places-hdr').textContent=CAT.name;
+  document.getElementById('ph-icon').textContent=CAT.icon;
+  document.getElementById('ph-lbl').textContent=CAT.name;
+  document.getElementById('ph-title').textContent=CAT.name+' in '+CITY.name;
+  document.getElementById('ph-city').textContent=CITY.name+', Nepal';
+  const wrap=document.getElementById('places-wrap');
+  
+  wrap.innerHTML=places.map((p,i)=>`
+    <div class="place-card" onclick="window.open('${p.mapUrl}', '_blank')">
+      <div class="place-thumb" style="background:linear-gradient(135deg,${CAT.bg.replace('0.12','0.4')} 0%,${CAT.bg.replace('0.12','0.15')} 100%)">
+        <span>${p.emoji||CAT.icon}</span>
+        <div class="place-thumb-lbl">${CAT.name}</div>
+      </div>
+      <div class="place-body">
+        <div class="place-seq">Place ${String(i+1).padStart(2,'0')} (Tap to Navigate 🗺️)</div>
+        <div class="place-name">${p.name}</div>
+        <div class="place-desc">${p.desc}</div>
+        <div class="place-loc">
+          <span class="loc-pin">📍</span>
+          <div class="loc-body"><span class="loc-lbl">Location &amp; Directions</span>${p.loc}</div>
+        </div>
+        <div class="place-tags">${p.tags.map(t=>`<span class="ptag">${t}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+document.getElementById('back-places').addEventListener('click',()=>showScreen('s-cats'));
+</script>
+</body>
+</html>
